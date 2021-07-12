@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import noise
 
 from pygame.locals import *
 
@@ -68,11 +69,12 @@ def generate_chunk(x, y):
             target_x = x * CHUNK_SIZE + x_pos
             target_y = y * CHUNK_SIZE + y_pos
             tile_type = 0  # nothing
-            if target_y > 10:
+            height = int(noise.pnoise1(target_x * 0.2, repeat=9999999) * 5)
+            if target_y > 8 - height:
                 tile_type = 2  # dirt
-            elif target_y == 10:
+            elif target_y == 8 - height:
                 tile_type = 1  # grass
-            elif target_y == 9:
+            elif target_y == 7 - height:
                 if random.randint(1, 5) == 1:
                     tile_type = 3  # plant
             if tile_type != 0:
@@ -95,9 +97,9 @@ def load_animation(path, frame_durations):
     n = 0
     for frame in frame_durations:
         animation_frame_id = animation_name + '_' + str(n)
-        img_loc = path + '/' + animation_frame_id + '.jpg'
+        img_loc = path + '/' + animation_frame_id + '.png'
         # print(img_loc)
-        animation_image = pygame.transform.scale(pygame.image.load(img_loc).convert(), (30, 30))
+        animation_image = pygame.transform.scale(pygame.image.load(img_loc), (20, 30))
         animation_image.set_colorkey((0, 0, 0))
         animation_frames[animation_frame_id] = animation_image.copy()
         for i in range(frame):
@@ -105,10 +107,17 @@ def load_animation(path, frame_durations):
         n += 1
     return animation_frame_data
 
+#
+# def load_sprite(path, frame_durations):
+#     image = pygame.image.load(path)
+#     for i in range(len(frame_durations)):
+#
+#
+#
 
 animation_database = {}
 
-animation_database['run'] = load_animation('Assets/player_animation/run', [7, 7, 7, 7, 7, 7])
+animation_database['run'] = load_animation('Assets/player_animation/run', [7, 7, 7]) #, 7, 7, 7])
 animation_database['idle'] = load_animation('Assets/player_animation/idle', [7, 7, 14, 7])
 
 # Action variables
@@ -307,7 +316,7 @@ while True:
 
     fps = str(int(clock.get_fps()))
     fps_label = main_font.render(fps, True, (255, 255, 255))
-    display.blit(fps_label, (WINDOW_SIZE[0] / 4 - fps_label.get_width() / 2, 50))
+    display.blit(fps_label, (WINDOW_SIZE[0] / 4 - fps_label.get_width() / 2, 2))
 
     dummy_surface = pygame.transform.scale(display, WINDOW_SIZE)
     screen.blit(dummy_surface, (0, 0))
